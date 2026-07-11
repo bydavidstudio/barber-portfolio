@@ -7,7 +7,7 @@
     <meta name="keywords" content="barber Bratislava, barber shop Bratislava, fade, strihanie brady, mužska živnosť, hair grooming, premium barber">
     <meta property="og:title" content="Davidos Barberos">
     <meta property="og:description" content="Premium barber shop Bratislava">
-    <meta property="og:image" content="https://davidosbarberos.sk/logo.png">
+    <meta property="og:image" content="https://davidosbarberos.sk/images/logo.png">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://davidosbarberos.sk/">
     <meta name="twitter:card" content="summary_large_image">
@@ -20,7 +20,7 @@
       "@context": "https://schema.org",
       "@type": "Barbershop",
       "name": "Davidos Barberos",
-      "image": "https://davidosbarberos.sk/logo.png",
+      "image": "https://davidosbarberos.sk/images/logo.png",
       "url": "https://davidosbarberos.sk",
       "telephone": "+421900123456",
       "address": {
@@ -52,64 +52,361 @@
       }
     }
     </script>
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TYVZKNP1XL"></script>
+    <!-- Early globals + local Cloudflare noise killer (Live Server / offline) -->
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-TYVZKNP1XL');
+      (function () {
+        // 1) Safe gtag stub (Silktide / CMP may call it early)
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function gtag() {
+          try { window.dataLayer.push(arguments); } catch (e) {}
+        };
+        try { globalThis.gtag = window.gtag; } catch (e) {}
+        window.__GA_ID = 'G-TYVZKNP1XL';
+        window.__gaLoaded = false;
+        window.gtag('consent', 'default', {
+          ad_storage: 'denied',
+          ad_user_data: 'denied',
+          ad_personalization: 'denied',
+          analytics_storage: 'denied',
+          wait_for_update: 500
+        });
+
+        // 2) Cloudflare injects /cdn-cgi/*.js on hosted sites.
+        // On local Live Server those paths 404 as HTML -> console MIME errors.
+        // Neutralize them without affecting real site features.
+        var CF_STUB = 'data:text/javascript,/* local-cf-stub */';
+        function isCfPath(u) {
+          return typeof u === 'string' && u.indexOf('/cdn-cgi/') !== -1;
+        }
+        function neutralizeScript(el) {
+          if (!el || el.tagName !== 'SCRIPT') return;
+          try {
+            var src = el.getAttribute('src') || el.src || '';
+            if (isCfPath(src)) {
+              el.removeAttribute('src');
+              el.src = CF_STUB;
+              el.type = 'text/javascript';
+            }
+          } catch (e) {}
+        }
+        // Patch createElement for scripts injected later
+        var create = document.createElement.bind(document);
+        document.createElement = function (tag) {
+          var el = create(tag);
+          if (String(tag).toLowerCase() === 'script') {
+            var setAttr = el.setAttribute.bind(el);
+            el.setAttribute = function (name, value) {
+              if (String(name).toLowerCase() === 'src' && isCfPath(value)) value = CF_STUB;
+              return setAttr(name, value);
+            };
+            try {
+              Object.defineProperty(el, 'src', {
+                configurable: true,
+                enumerable: true,
+                get: function () { return el.getAttribute('src') || ''; },
+                set: function (v) { el.setAttribute('src', isCfPath(v) ? CF_STUB : v); }
+              });
+            } catch (e) {}
+          }
+          return el;
+        };
+        // Clean any already-present / late-injected tags
+        function scrub() {
+          document.querySelectorAll('script[src*="/cdn-cgi/"]').forEach(neutralizeScript);
+        }
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', scrub);
+        } else {
+          scrub();
+        }
+        // Observe dynamic injections
+        try {
+          new MutationObserver(function (muts) {
+            muts.forEach(function (m) {
+              m.addedNodes && m.addedNodes.forEach(function (n) {
+                if (n && n.tagName === 'SCRIPT') neutralizeScript(n);
+                if (n && n.querySelectorAll) n.querySelectorAll('script[src*="/cdn-cgi/"]').forEach(neutralizeScript);
+              });
+            });
+          }).observe(document.documentElement, { childList: true, subtree: true });
+        } catch (e) {}
+      })();
     </script>
-    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="shortcut icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" href="images/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg" />
+    <link rel="shortcut icon" href="images/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="Davidos Barberos" />
-    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="manifest" href="images/site.webmanifest" />
     <meta name="theme-color" content="#111111">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preload" as="image" href="images/logo.png" fetchpriority="high">
+    <link rel="preload" as="image" href="images/uvodnyobrazok.png" fetchpriority="high">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
 </head>
 <body>
+    <!-- Site background (static, lightweight) -->
+    <div class="site-bg" aria-hidden="true">
+        <div class="site-bg-base"></div>
+        <div class="site-bg-glow site-bg-glow-1"></div>
+        <div class="site-bg-glow site-bg-glow-2"></div>
+        <div class="site-bg-glow site-bg-glow-3"></div>
+        <div class="site-bg-grid"></div>
+        <div class="site-bg-dots"></div>
+        <div class="site-bg-vignette"></div>
+    </div>
+
     <!-- Portfolio Notice Banner -->
     <div class="portfolio-notice">
-        <div class="container">
+        <div class="container portfolio-notice-inner">
             <span class="portfolio-label">Portfolio Project</span>
             <span class="portfolio-text">This is a portfolio demonstration, not a real barber shop</span>
+            <span class="portfolio-text-mobile">Demo portfolio project — not a real shop</span>
         </div>
     </div>
 
     <!-- Loader -->
     <div id="loader" class="loader">
-        <img src="logo.png" alt="Davidos Barberos" class="loader-logo">
+        <div class="loader-stage" aria-hidden="true">
+            <div class="loader-radial"></div>
+            <div class="loader-stripes"></div>
+            <div class="loader-orb loader-orb-1"></div>
+            <div class="loader-orb loader-orb-2"></div>
+            <div class="loader-orb loader-orb-3"></div>
+            <div class="loader-sparkles" id="loaderSparkles"></div>
+            <div class="loader-frame">
+                <span class="lf lf-tl"></span>
+                <span class="lf lf-tr"></span>
+                <span class="lf lf-bl"></span>
+                <span class="lf lf-br"></span>
+            </div>
+        </div>
+
+        <div class="loader-content">
+            <div class="loader-badge">
+                <i></i><span>Premium Barber Shop</span><i></i>
+            </div>
+
+            <div class="loader-hero-row">
+                <div class="loader-scissors" id="loaderScissors" aria-hidden="true">
+                    <svg class="loader-scissors-svg" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="lsMetal" x1="20" y1="20" x2="220" y2="220" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#f7e7b0"/>
+                                <stop offset="40%" stop-color="#d4af61"/>
+                                <stop offset="100%" stop-color="#8a6a30"/>
+                            </linearGradient>
+                            <linearGradient id="lsBlade" x1="120" y1="120" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#f4f4f4"/>
+                                <stop offset="55%" stop-color="#c8c8c8"/>
+                                <stop offset="100%" stop-color="#8a8a8a"/>
+                            </linearGradient>
+                            <linearGradient id="lsBlade2" x1="120" y1="120" x2="40" y2="200" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#ececec"/>
+                                <stop offset="55%" stop-color="#bcbcbc"/>
+                                <stop offset="100%" stop-color="#777"/>
+                            </linearGradient>
+                            <filter id="lsGlow" x="-35%" y="-35%" width="170%" height="170%">
+                                <feDropShadow dx="0" dy="3" stdDeviation="3.5" flood-color="#d4af61" flood-opacity="0.45"/>
+                            </filter>
+                        </defs>
+                        <g class="ls-pivot" filter="url(#lsGlow)">
+                            <g class="ls-blade ls-blade-top">
+                                <path d="M118 118 L52 42 L44 50 L110 124 Z" fill="url(#lsBlade)"/>
+                                <path d="M118 118 L52 42" stroke="rgba(255,255,255,0.35)" stroke-width="1.4"/>
+                                <path d="M110 124 L132 146" stroke="url(#lsMetal)" stroke-width="10" stroke-linecap="round"/>
+                                <circle cx="156" cy="168" r="27" fill="rgba(12,12,12,0.8)" stroke="url(#lsMetal)" stroke-width="8"/>
+                                <circle cx="156" cy="168" r="11" fill="none" stroke="url(#lsMetal)" stroke-width="3" opacity="0.55"/>
+                            </g>
+                            <g class="ls-blade ls-blade-bot">
+                                <path d="M118 122 L52 198 L44 190 L110 116 Z" fill="url(#lsBlade2)"/>
+                                <path d="M118 122 L52 198" stroke="rgba(255,255,255,0.28)" stroke-width="1.4"/>
+                                <path d="M110 116 L132 94" stroke="url(#lsMetal)" stroke-width="10" stroke-linecap="round"/>
+                                <circle cx="156" cy="72" r="27" fill="rgba(12,12,12,0.8)" stroke="url(#lsMetal)" stroke-width="8"/>
+                                <circle cx="156" cy="72" r="11" fill="none" stroke="url(#lsMetal)" stroke-width="3" opacity="0.55"/>
+                            </g>
+                            <circle cx="120" cy="120" r="11" fill="url(#lsMetal)"/>
+                            <circle cx="120" cy="120" r="5" fill="#161616"/>
+                            <circle cx="120" cy="120" r="2" fill="#d4af61"/>
+                        </g>
+                    </svg>
+                </div>
+
+                <div class="loader-emblem">
+                    <div class="loader-ring loader-ring-outer"></div>
+                    <div class="loader-ring loader-ring-mid"></div>
+                    <svg class="loader-arc" viewBox="0 0 180 180" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="loaderGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#f0d78c"/>
+                                <stop offset="50%" stop-color="#d4af61"/>
+                                <stop offset="100%" stop-color="#a8843a"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="loader-arc-track" cx="90" cy="90" r="82"></circle>
+                        <circle class="loader-arc-progress" id="loaderArc" cx="90" cy="90" r="82"></circle>
+                    </svg>
+                    <div class="loader-logo-wrap">
+                        <img src="images/logo.png" alt="Davidos Barberos" class="loader-logo" width="140" height="140" decoding="async" fetchpriority="high">
+                    </div>
+                    <div class="loader-percent-badge" id="loaderPercent">0%</div>
+                </div>
+
+                <div class="loader-comb" aria-hidden="true">
+                    <svg viewBox="0 0 64 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="22" y="8" width="20" height="104" rx="8" fill="url(#lsMetal)" opacity="0.9"/>
+                        <path d="M26 18 H38 M26 30 H38 M26 42 H38 M26 54 H38 M26 66 H38 M26 78 H38 M26 90 H38" stroke="#1a1a1a" stroke-width="2.2" stroke-linecap="round" opacity="0.55"/>
+                        <circle cx="32" cy="108" r="5" fill="#1a1a1a" opacity="0.35"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="loader-text">
+                <h1 class="loader-title">
+                    <span class="loader-title-white">DAVIDOS</span>
+                    <span class="loader-title-gold">BARBEROS</span>
+                </h1>
+                <p class="loader-sub">Bratislava · Precision · Style</p>
+            </div>
+
+            <div class="loader-progress-wrap">
+                <div class="loader-bar">
+                    <span class="loader-bar-fill" id="loaderBarFill"></span>
+                    <span class="loader-bar-glow"></span>
+                </div>
+                <div class="loader-status" id="loaderStatus">Načítavam…</div>
+            </div>
+        </div>
+
+        <div class="loader-exit" aria-hidden="true">
+            <div class="loader-exit-panel left"></div>
+            <div class="loader-exit-panel right"></div>
+            <div class="loader-exit-flash"></div>
+        </div>
     </div>
 
     <nav class="navbar" id="navbar">
         <div class="nav-container">
             <a href="#home" class="logo">
-                <img src="logo.png" alt="Davidos Barberos">
+                <img src="images/logo.png" alt="Davidos Barberos" width="160" height="160" decoding="async" fetchpriority="high">
             </a>
-            <ul class="nav-menu" id="navMenu">
+            <ul class="nav-menu nav-menu-desktop" id="navMenuDesktop">
                 <li><a href="#home" class="nav-link active">Domov</a></li>
-                <li><a href="https://booqme.sk/davidos-barberos" target="_blank" class="nav-link">Rezervovať</a></li>
+                <li><a href="https://booqme.sk/sk/rezervacia/davidos-barberos" target="_blank" class="nav-link">Rezervovať</a></li>
                 <li><a href="#pricing" class="nav-link">Cenník</a></li>
                 <li><a href="#barbers" class="nav-link">Tím</a></li>
                 <li><a href="#about" class="nav-link">O nás</a></li>
                 <li><a href="#gallery" class="nav-link">Galéria</a></li>
+                <li><a href="#booking" class="nav-link">Rezervácia</a></li>
                 <li><a href="#booking-info" class="nav-link">Kontakt</a></li>
             </ul>
-            <div class="hamburger" id="hamburger">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
+            <div class="menu-overlay" id="menuOverlay" aria-hidden="true">
+                <div class="menu-overlay-bg"></div>
+                <div class="menu-panel">
+                    <div class="menu-panel-top">
+                        <div class="menu-brand-block">
+                            <div class="menu-brand-kicker">
+                                <span class="menu-brand-line"></span>
+                                <span>Premium Barber</span>
+                                <span class="menu-brand-line"></span>
+                            </div>
+                            <div class="menu-brand-title">DAVIDOS</div>
+                            <div class="menu-brand-subtitle">BARBEROS</div>
+                            <p class="menu-brand-tag">Bratislava · Style · Precision</p>
+                        </div>
+                        <div class="menu-scissors" id="menuScissors" aria-hidden="true">
+                            <svg class="scissors-svg" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="scMetal" x1="20" y1="20" x2="220" y2="220" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0%" stop-color="#f7e7b0"/>
+                                        <stop offset="35%" stop-color="#d4af61"/>
+                                        <stop offset="70%" stop-color="#b8944f"/>
+                                        <stop offset="100%" stop-color="#8a6a30"/>
+                                    </linearGradient>
+                                    <linearGradient id="scBlade" x1="120" y1="120" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0%" stop-color="#f2f2f2"/>
+                                        <stop offset="40%" stop-color="#cfcfcf"/>
+                                        <stop offset="100%" stop-color="#8d8d8d"/>
+                                    </linearGradient>
+                                    <linearGradient id="scBlade2" x1="120" y1="120" x2="40" y2="200" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0%" stop-color="#e8e8e8"/>
+                                        <stop offset="45%" stop-color="#bdbdbd"/>
+                                        <stop offset="100%" stop-color="#7a7a7a"/>
+                                    </linearGradient>
+                                    <filter id="scSoft" x="-30%" y="-30%" width="160%" height="160%">
+                                        <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#d4af61" flood-opacity="0.35"/>
+                                    </filter>
+                                </defs>
+                                <g class="sc-pivot" filter="url(#scSoft)">
+                                    <g class="blade blade-top">
+                                        <path d="M118 118 L52 42 L44 50 L110 124 Z" fill="url(#scBlade)"/>
+                                        <path d="M118 118 L52 42" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>
+                                        <path d="M110 124 L132 146" stroke="url(#scMetal)" stroke-width="10" stroke-linecap="round"/>
+                                        <circle cx="156" cy="168" r="28" fill="rgba(12,12,12,0.75)" stroke="url(#scMetal)" stroke-width="8"/>
+                                        <circle cx="156" cy="168" r="12" fill="none" stroke="url(#scMetal)" stroke-width="3" opacity="0.55"/>
+                                    </g>
+                                    <g class="blade blade-bot">
+                                        <path d="M118 122 L52 198 L44 190 L110 116 Z" fill="url(#scBlade2)"/>
+                                        <path d="M118 122 L52 198" stroke="rgba(255,255,255,0.28)" stroke-width="1.5"/>
+                                        <path d="M110 116 L132 94" stroke="url(#scMetal)" stroke-width="10" stroke-linecap="round"/>
+                                        <circle cx="156" cy="72" r="28" fill="rgba(12,12,12,0.75)" stroke="url(#scMetal)" stroke-width="8"/>
+                                        <circle cx="156" cy="72" r="12" fill="none" stroke="url(#scMetal)" stroke-width="3" opacity="0.55"/>
+                                    </g>
+                                    <circle cx="120" cy="120" r="11" fill="url(#scMetal)"/>
+                                    <circle cx="120" cy="120" r="5" fill="#1a1a1a"/>
+                                    <circle cx="120" cy="120" r="2" fill="#d4af61"/>
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="menu-nav-wrap">
+                        <div class="menu-decor" aria-hidden="true">
+                            <span class="menu-decor-line"></span>
+                            <span class="menu-decor-label">Menu</span>
+                            <span class="menu-decor-line"></span>
+                        </div>
+
+                        <ul class="nav-menu" id="navMenu">
+                            <li style="--i:0"><a href="#home" class="nav-link active"><span class="nav-index">01</span><span class="nav-label">Domov</span><i class="fas fa-chevron-right nav-arrow"></i></a></li>
+                            <li style="--i:1"><a href="#pricing" class="nav-link"><span class="nav-index">02</span><span class="nav-label">Cenník</span><i class="fas fa-chevron-right nav-arrow"></i></a></li>
+                            <li style="--i:2"><a href="#barbers" class="nav-link"><span class="nav-index">03</span><span class="nav-label">Tím</span><i class="fas fa-chevron-right nav-arrow"></i></a></li>
+                            <li style="--i:3"><a href="#about" class="nav-link"><span class="nav-index">04</span><span class="nav-label">O nás</span><i class="fas fa-chevron-right nav-arrow"></i></a></li>
+                            <li style="--i:4"><a href="#gallery" class="nav-link"><span class="nav-index">05</span><span class="nav-label">Galéria</span><i class="fas fa-chevron-right nav-arrow"></i></a></li>
+                            <li style="--i:5"><a href="#booking-info" class="nav-link"><span class="nav-index">06</span><span class="nav-label">Kontakt</span><i class="fas fa-chevron-right nav-arrow"></i></a></li>
+                        </ul>
+                    </div>
+
+                    <div class="menu-panel-foot">
+                        <a href="https://booqme.sk/sk/rezervacia/davidos-barberos" target="_blank" class="menu-cta">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>Rezervovať termín</span>
+                        </a>
+                        <div class="menu-socials">
+                            <a href="https://instagram.com/davidos.barberos" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                            <a href="https://tiktok.com/@davidos.barberos" target="_blank" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                            <a href="https://facebook.com/davidos.barberos" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="menu-sparkles" id="menuSparkles" aria-hidden="true"></div>
             </div>
+            <button class="hamburger" id="hamburger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="navMenu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
         </div>
     </nav>
 
     <header id="home" class="hero">
+        <div class="hero-bg" aria-hidden="true"></div>
+        <div class="hero-particles" aria-hidden="true"></div>
         <div class="hero-content">
             <div class="hero-badge-row">
                 <div class="hero-badge"><i class="fas fa-star"></i> ★ 4.9/5 | 500+ spokojných klientov</div>
@@ -121,15 +418,15 @@
             <p class="hero-subtitle">Premium Barber Shop v Bratislave</p>
             
             <div class="hero-actions">
-                <a href="https://booqme.sk/davidos-barberos" target="_blank" class="btn-primary btn-book">
+                <a href="https://booqme.sk/sk/rezervacia/davidos-barberos" target="_blank" class="btn-primary btn-book">
                     <i class="fas fa-calendar-check"></i> Rezervovať
                 </a>
             </div>
         </div>
-        <div class="scroll-indicator">
+        <div class="scroll-indicator" role="button" tabindex="0" aria-label="Scrollovať dole">
             <span></span>
         </div>
-</header>
+    </header>
 
      <section id="pricing" class="services section">
          <div class="container">
@@ -221,7 +518,7 @@
             </div>
              <div class="barbers-grid">
                  <div class="barber-card reveal-target">
-                     <img src="barber1.png" alt="Marek - Master Barber s 10+ rokmi skúseností" loading="lazy">
+                     <img src="images/barber1.png" alt="Marek - Master Barber s 10+ rokmi skúseností" width="600" height="750" loading="lazy" decoding="async">
                      <div class="barber-overlay">
                          <h4>Marek</h4>
                          <p>Master Barber</p>
@@ -229,7 +526,7 @@
                      </div>
                  </div>
                  <div class="barber-card reveal-target">
-                     <img src="barber2.png" alt="Eva - Špecialistka na úpravu brady" loading="lazy">
+                     <img src="images/barber2.png" alt="Eva - Špecialistka na úpravu brady" width="600" height="750" loading="lazy" decoding="async">
                      <div class="barber-overlay">
                          <h4>Eva</h4>
                          <p>Specialistka na brady</p>
@@ -237,7 +534,7 @@
                      </div>
                  </div>
                  <div class="barber-card reveal-target">
-                     <img src="barber3.png" alt="Tomáš - Styling špecialista pre moderné trendy" loading="lazy">
+                     <img src="images/barber3.png" alt="Tomáš - Styling špecialista pre moderné trendy" width="600" height="750" loading="lazy" decoding="async">
                      <div class="barber-overlay">
                          <h4>Tomáš</h4>
                          <p>Styling specialist</p>
@@ -248,46 +545,69 @@
         </div>
     </section>
 
-<section id="about" class="about section">
+<div class="pin-section" id="aboutPin">
+<section id="about" class="about section pin-inner">
          <div class="container">
              <div class="section-header">
                  <h2 class="section-title">O nás</h2>
                  <p class="section-subtitle">Viac než len obyčajný strih</p>
              </div>
-             <div class="about-grid">
-                 <div class="about-image">
-                     <img src="uvodnyobrazok.png" alt="Interiér Davidson Barberos salonu v Bratislave" loading="lazy">
+             <div class="about-grid pin-grid">
+                 <div class="about-image pin-sticky">
+                     <div class="pin-image-frame reveal-scale">
+                         <img src="images/uvodnyobrazok.png" alt="Interiér Davidson Barberos salonu v Bratislave" width="900" height="700" loading="lazy" decoding="async">
+                         <div class="pin-image-glow"></div>
+                         <div class="pin-progress-ring" aria-hidden="true">
+                             <svg viewBox="0 0 100 100">
+                                 <circle class="ring-bg" cx="50" cy="50" r="46"></circle>
+                                 <circle class="ring-fill" cx="50" cy="50" r="46"></circle>
+                             </svg>
+                         </div>
+                     </div>
+                     <p class="pin-caption">Scrolluj ďalej — príbeh pokračuje</p>
                  </div>
-                 <div class="about-text">
-                      <h3>David Studio<br>Ukážkový projekt barber shop webu</h3>
-                      <p>
-                          Davidos Barberos vznikol z jednoduchého želania — vytvoriť miesto, kde sa muži cítia výnimočne. Toto je ukážkový projekt demo webu barber shopu.
-                      </p>
-                      <p>
-                          Naša filozofia je jednoduchá: každému klientovi venujeme plnú pozornosť. Nízky tlak, presné techniky a produkty, ktoré skutočne fungujú. Perfektný strih je viac než len obyčajný strih.
-                      </p>
-                      <div class="about-features">
-                          <div class="about-feature">
-                              <i class="fas fa-cut"></i>
-                              <span>Precízne fade strihy</span>
-                          </div>
-                          <div class="about-feature">
-                              <i class="fas fa-user-friends"></i>
-                              <span>Individuálny prístup</span>
-                          </div>
-                          <div class="about-feature">
-                              <i class="fas fa-spa"></i>
-                              <span>Moderný štýl</span>
-                          </div>
-                          <div class="about-feature">
-                              <i class="fas fa-gem"></i>
-                              <span>Kvalitná kozmetika</span>
+                 <div class="about-text pin-scroll-col">
+                      <div class="pin-step" data-step="1">
+                          <span class="pin-step-num">01</span>
+                          <h3>David Studio<br>Ukážkový projekt barber shop webu</h3>
+                          <p>
+                              Davidos Barberos vznikol z jednoduchého želania — vytvoriť miesto, kde sa muži cítia výnimočne. Toto je ukážkový projekt demo webu barber shopu.
+                          </p>
+                      </div>
+                      <div class="pin-step" data-step="2">
+                          <span class="pin-step-num">02</span>
+                          <h3>Filozofia precíznosti</h3>
+                          <p>
+                              Naša filozofia je jednoduchá: každému klientovi venujeme plnú pozornosť. Nízky tlak, presné techniky a produkty, ktoré skutočne fungujú. Perfektný strih je viac než len obyčajný strih.
+                          </p>
+                      </div>
+                      <div class="pin-step" data-step="3">
+                          <span class="pin-step-num">03</span>
+                          <h3>Čo nás definuje</h3>
+                          <div class="about-features">
+                              <div class="about-feature">
+                                  <i class="fas fa-cut"></i>
+                                  <span>Precízne fade strihy</span>
+                              </div>
+                              <div class="about-feature">
+                                  <i class="fas fa-user-friends"></i>
+                                  <span>Individuálny prístup</span>
+                              </div>
+                              <div class="about-feature">
+                                  <i class="fas fa-spa"></i>
+                                  <span>Moderný štýl</span>
+                              </div>
+                              <div class="about-feature">
+                                  <i class="fas fa-gem"></i>
+                                  <span>Kvalitná kozmetika</span>
+                              </div>
                           </div>
                       </div>
                   </div>
               </div>
           </div>
       </section>
+</div>
 
 <section id="gallery" class="gallery section">
            <div class="container">
@@ -296,16 +616,16 @@
                    <p class="section-subtitle">Prejdite si naše najlepšie strihy</p>
                </div>
                <div class="gallery-grid">
-                   <div class="gallery-item">
-                       <img src="uces1.png" alt="Pánsky strih - moderný fade s úpravou brady" loading="lazy">
+                   <div class="gallery-item reveal-scale">
+                       <img src="images/uces1.png" alt="Pánsky strih - moderný fade s úpravou brady" width="800" height="800" loading="lazy" decoding="async">
                        <div class="gallery-overlay"><i class="fas fa-search-plus"></i></div>
                    </div>
-                   <div class="gallery-item">
-                       <img src="uces2.png" alt="Classic cut s precíznym fade" loading="lazy">
+                   <div class="gallery-item reveal-scale">
+                       <img src="images/uces2.png" alt="Classic cut s precíznym fade" width="800" height="800" loading="lazy" decoding="async">
                        <div class="gallery-overlay"><i class="fas fa-search-plus"></i></div>
                    </div>
-                   <div class="gallery-item">
-                       <img src="uces3.png" alt="Moderný undercut s designovým prvkom" loading="lazy">
+                   <div class="gallery-item reveal-scale">
+                       <img src="images/uces3.png" alt="Moderný undercut s designovým prvkom" width="800" height="800" loading="lazy" decoding="async">
                        <div class="gallery-overlay"><i class="fas fa-search-plus"></i></div>
                    </div>
                </div>
@@ -374,22 +694,45 @@
                       <p>"Dobrý strih, milý personál. Trochu dlhý čakací čas, ale inak všetko OK."</p>
                       <div class="review-author"><strong>Tomáš R.</strong><span>Návštevník</span></div>
                   </div>
-                  <div class="review-card reveal-target more-review" data-rating="5">
-                      <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-                      <p>"Eva je najlepšia! Bradu mám už 3 roky a ona mi ju premenila. Profesionálna a trpezlivá."</p>
-                      <div class="review-author"><strong>Peter M.</strong><span>Stály klient</span></div>
-                  </div>
-              </div>
-              <div class="reviews-actions">
-                  <button class="toggle-reviews" id="toggleReviews">
-                      <span class="toggle-text">Zobraziť viac recenzií</span>
-                  </button>
-                  <a href="https://search.google.com/local/writereview?placeid=ChIJrTLr-G1UCUcRQ3x5QkGJ0" target="_blank" class="btn-google-review">
-                      <img src="googlelogo.png" alt="Google"> Pridať recenziu na Google
-                  </a>
-              </div>
-          </div>
-      </section>
+<div class="review-card reveal-target more-review" data-rating="5">
+                       <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                       <p>"Eva je najlepšia! Bradu mám už 3 roky a ona mi ju premenila. Profesionálna a trpezlivá."</p>
+                       <div class="review-author"><strong>Peter M.</strong><span>Stály klient</span></div>
+                   </div>
+               </div>
+               <div class="reviews-actions">
+                   <button class="toggle-reviews" id="toggleReviews">
+                       <span class="toggle-text">Zobraziť viac recenzií</span>
+                   </button>
+                   <a href="https://search.google.com/local/writereview?placeid=ChIJrTLr-G1UCUcRQ3x5QkGJ0" target="_blank" class="btn-google-review">
+                       <img src="images/googlelogo.png" alt="Google" width="32" height="32" loading="lazy" decoding="async"> Pridať recenziu na Google
+                   </a>
+               </div>
+           </div>
+       </section>
+
+    <section id="booking" class="calendly section booking-online">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Rezervácia online</h2>
+                <p class="section-subtitle">Vyberte si čas cez Booqme</p>
+            </div>
+            <div class="calendly-wrapper booqme-wrapper">
+                <div class="calendly-inline booqme-inline" id="booqmeInline">
+                    <div class="calendly-placeholder booqme-placeholder">
+                        <i class="fas fa-calendar-alt"></i>
+                        <p>Načítavam Booqme rezerváciu…</p>
+                    </div>
+                </div>
+                <div class="booqme-fallback">
+                    <p>Ak sa rezervácia nenačíta, otvorte ju priamo:</p>
+                    <a href="https://booqme.sk/sk/rezervacia/davidos-barberos" target="_blank" rel="noopener" class="btn-primary">
+                        <i class="fas fa-external-link-alt"></i> Otvoriť Booqme
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <section id="instagram" class="instagram section">
         <div class="container">
@@ -399,7 +742,7 @@
             </div>
             <div class="instagram-cta">
                 <a href="https://instagram.com/davidos.barberos" target="_blank" class="instagram-post">
-                    <img src="igobrazok.png" alt="Instagram">
+                    <img src="images/igobrazok.png" alt="Instagram" width="600" height="600" loading="lazy" decoding="async">
                     <div class="instagram-overlay"><i class="fab fa-instagram"></i></div>
                 </a>
             </div>
@@ -412,8 +755,9 @@
                 <h2 class="section-title">Informácie</h2>
                 <p class="section-subtitle">Nájdite nás alebo nás zavolajte</p>
             </div>
-            <div class="booking-content">
-                <div class="booking-info">
+
+            <div class="booking-content booking-content-solo">
+                <div class="booking-info booking-info-grid">
                     <div class="info-item">
                         <i class="fas fa-map-marker-alt"></i>
                         <div>
@@ -425,7 +769,7 @@
                         <i class="fas fa-phone"></i>
                         <div>
                             <h4>Telefón</h4>
-                            <p>+421 900 123 456</p>
+                            <p><a href="tel:+421900123456">+421 900 123 456</a></p>
                         </div>
                     </div>
                     <div class="info-item">
@@ -435,10 +779,22 @@
                             <p>Po-Pi: 9:00-19:00<br>So: 9:00-16:00</p>
                         </div>
                     </div>
-                    <a href="tel:+421900123456" class="btn-primary">Zavolať</a>
+                    <div class="info-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h4>Email</h4>
+                            <p><a href="#" class="js-email" data-user="info" data-domain="davidosbarberos.sk">info&#64;davidosbarberos.sk</a></p>
+                        </div>
+                    </div>
                 </div>
-                <div class="map-container">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2662.052828232576!2d17.10263277663787!3d48.14852094744819!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x476c89131b400001%3A0xc7a709a2e5c1a68!2sHlavn%C3%A1%20123%2C%20811%2001%20Bratislava!5e0!3m2!1ssk!2ssk!4v1700000000000" allowfullscreen="" loading="lazy"></iframe>
+
+                <div class="booking-actions">
+                    <a href="tel:+421900123456" class="btn-primary">
+                        <i class="fas fa-phone"></i> Zavolať
+                    </a>
+                    <a href="https://booqme.sk/sk/rezervacia/davidos-barberos" target="_blank" rel="noopener" class="btn-primary btn-book">
+                        <i class="fas fa-calendar-check"></i> Rezervovať
+                    </a>
                 </div>
             </div>
         </div>
@@ -448,13 +804,15 @@
         <div class="container">
             <div class="contact-form-container">
                 <h2>Napíšte nám</h2>
-                <form id="contactForm" class="contact-form">
+                <form id="contactForm" class="contact-form" action="https://formspree.io/f/YOUR_FORMSPREE_ID" method="POST">
                     <div class="form-row">
                         <input type="text" name="name" placeholder="Meno" required>
-                        <input type="email" name="email" placeholder="Email" required>
+                        <input type="email" name="_replyto" placeholder="Email" required>
                     </div>
                     <input type="tel" name="phone" placeholder="Telefón">
-                    <textarea name="message" placeholder="Správa" rows="4"></textarea>
+                    <textarea name="message" placeholder="Správa" rows="4" required></textarea>
+                    <input type="hidden" name="_subject" value="Nová správa z Davidos Barberos webu">
+                    <input type="hidden" name="_autoresponse" value="Ďakujeme za vašu správu! Ozveme sa čoskoro.">
                     <button type="submit" class="btn-primary">Odoslať</button>
                 </form>
             </div>
@@ -466,19 +824,26 @@
             <div class="footer-content">
                 <div class="footer-brand">
                     <a href="#home" class="logo">
-                        <img src="logo.png" alt="Davidos Barberos">
+                        <img src="images/logo.png" alt="Davidos Barberos" width="80" height="80" loading="lazy" decoding="async">
                     </a>
                     <p>Premium barber shop v srdci Bratislavy. Presné strihy pre moderných mužov.</p>
                 </div>
                 <div class="footer-links">
                     <h4>Rýchle odkazy</h4>
-                    <a href="#home">Domov</a><a href="https://booqme.sk/davidos-barberos" target="_blank">Rezervovať</a><a href="#pricing">Cenník</a><a href="#barbers">Tím</a><a href="#about">O nás</a><a href="#gallery">Galéria</a><a href="#booking-info">Kontakt</a>
+                    <a href="#home">Domov</a>
+                    <a href="https://booqme.sk/sk/rezervacia/davidos-barberos" target="_blank">Rezervovať</a>
+                    <a href="#booking">Booqme</a>
+                    <a href="#pricing">Cenník</a>
+                    <a href="#barbers">Tím</a>
+                    <a href="#about">O nás</a>
+                    <a href="#gallery">Galéria</a>
+                    <a href="#booking-info">Kontakt</a>
                 </div>
                 <div class="footer-contact">
                     <h4>Kontakt</h4>
                     <p><i class="fas fa-map-marker-alt"></i> Hlavná 123, Bratislava</p>
                     <p><i class="fas fa-phone"></i> +421 900 123 456</p>
-                    <p><i class="fas fa-envelope"></i> info@davidosbarberos.sk</p>
+                    <p><i class="fas fa-envelope"></i> <a href="#" class="js-email" data-user="info" data-domain="davidosbarberos.sk">info&#64;davidosbarberos.sk</a></p>
                 </div>
                 <div class="footer-social">
                     <h4>Sleduj nás</h4>
@@ -491,10 +856,15 @@
             </div>
             <div class="footer-cta">
                 <p>Chcete najlepší strih v meste?</p>
-                <a href="https://booqme.sk/davidos-barberos" target="_blank" class="btn-primary">Rezervovať teraz</a>
+                <a href="https://booqme.sk/sk/rezervacia/davidos-barberos" target="_blank" class="btn-primary">Rezervovať teraz</a>
+            </div>
+            <div class="footer-legal">
+                <a href="ochrana-osobnych-udajov.html">Ochrana osobných údajov</a>
+                <a href="zasady-cookies.html">Zásady používania cookies</a>
+                <button type="button" id="openCookieSettings" class="footer-cookie-settings">Zmeniť nastavenia cookies</button>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 Davidos Barberos. Všetky práva vyhradené.</p>
+                <p>&copy; <span class="current-year">2026</span> byDavidStudio</p>
             </div>
         </div>
     </footer>
@@ -503,19 +873,87 @@
         <i class="fas fa-chevron-up"></i>
     </div>
 
-    <!-- Cookie Consent -->
-     <div id="cookieConsent" class="cookie-consent">
-         <div class="cookie-content">
-             <p>Tento web používa cookies na zlepšenie používateľskej skúsenosti. <a href="cookies.html" target="_blank">Viac informácií</a></p>
-             <button id="acceptCookies" class="cookie-btn">Súhlasím</button>
-         </div>
-     </div>
+    <!-- Cookie Consent (preference saved in localStorage) -->
+    <div id="cookieConsent" class="cookie-consent" role="dialog" aria-modal="true" aria-labelledby="cookieTitle" hidden>
+        <div class="cookie-card">
+            <div class="cookie-accent" aria-hidden="true"></div>
 
-<script src="js/script.js"></script>
- </body>
+            <div class="cookie-header">
+                <div class="cookie-icon" aria-hidden="true">
+                    <i class="fas fa-cookie-bite"></i>
+                </div>
+                <div class="cookie-heading">
+                    <div class="cookie-kicker">Súkromie &amp; cookies</div>
+                    <strong class="cookie-title" id="cookieTitle">Nastavenie cookies</strong>
+                    <p class="cookie-lead">
+                        Tento web používa cookies na správne fungovanie a meranie návštevnosti.
+                        Nevyhnutné cookies sú vždy aktívne. Ostatné kategórie si môžete zapnúť podľa preferencií.
+                    </p>
+                </div>
+            </div>
+
+            <div class="cookie-categories" id="cookieCategories">
+                <label class="cookie-cat is-locked">
+                    <span class="cookie-cat-main">
+                        <span class="cookie-cat-title">Nevyhnutné</span>
+                        <span class="cookie-cat-desc">Základné fungovanie webu, bezpečnosť a uloženie vašich preferencií.</span>
+                    </span>
+                    <span class="cookie-switch">
+                        <input type="checkbox" id="cookieNecessary" checked disabled>
+                        <span class="cookie-switch-ui" aria-hidden="true"></span>
+                    </span>
+                </label>
+
+                <label class="cookie-cat" for="cookieAnalytics">
+                    <span class="cookie-cat-main">
+                        <span class="cookie-cat-title">Analytické</span>
+                        <span class="cookie-cat-desc">Google Analytics — anonymné štatistiky o používaní webu.</span>
+                    </span>
+                    <span class="cookie-switch">
+                        <input type="checkbox" id="cookieAnalytics">
+                        <span class="cookie-switch-ui" aria-hidden="true"></span>
+                    </span>
+                </label>
+
+                <label class="cookie-cat" for="cookieFunctional">
+                    <span class="cookie-cat-main">
+                        <span class="cookie-cat-title">Funkčné</span>
+                        <span class="cookie-cat-desc">Booqme rezervácie, Google Maps a ďalšie funkčné služby tretích strán.</span>
+                    </span>
+                    <span class="cookie-switch">
+                        <input type="checkbox" id="cookieFunctional">
+                        <span class="cookie-switch-ui" aria-hidden="true"></span>
+                    </span>
+                </label>
+
+                <label class="cookie-cat" for="cookieMarketing">
+                    <span class="cookie-cat-main">
+                        <span class="cookie-cat-title">Marketingové</span>
+                        <span class="cookie-cat-desc">Meta Pixel, Google Ads a podobné nástroje (ak sú nasadené).</span>
+                    </span>
+                    <span class="cookie-switch">
+                        <input type="checkbox" id="cookieMarketing">
+                        <span class="cookie-switch-ui" aria-hidden="true"></span>
+                    </span>
+                </label>
+            </div>
+
+            <div class="cookie-actions cookie-actions-wide">
+                <button type="button" id="rejectCookies" class="cookie-btn cookie-btn-secondary">Len nevyhnutné</button>
+                <button type="button" id="saveCookieSettings" class="cookie-btn cookie-btn-ghost">Uložiť výber</button>
+                <button type="button" id="acceptCookies" class="cookie-btn">Prijať všetko</button>
+            </div>
+
+            <div class="cookie-links">
+                <a href="ochrana-osobnych-udajov.html">Ochrana osobných údajov</a>
+                <a href="zasady-cookies.html">Zásady používania cookies</a>
+            </div>
+        </div>
+    </div>
+
+<script src="script.js" defer></script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a19989a7d9cb3255',t:'MTc4Mzc5MTA0Mw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
  </html>
-
-
-
-
-
+<script src="script.js" defer></script>
+</body>
+</html>
