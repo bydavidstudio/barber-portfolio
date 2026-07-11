@@ -17,46 +17,32 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
 
 // ── Cookie consent (localStorage) ──
 // ── Cookie consent (localStorage + categories) ──
+// ── Cookie consent (simple 2-choice + localStorage) ──
 (function initCookieConsent() {
     const STORAGE_KEY = 'davidos_cookie_consent_v2';
     const banner = document.getElementById('cookieConsent');
     const acceptBtn = document.getElementById('acceptCookies');
     const rejectBtn = document.getElementById('rejectCookies');
-    const saveBtn = document.getElementById('saveCookieSettings');
     const openSettingsBtns = [
         document.getElementById('openCookieSettings'),
         ...document.querySelectorAll('[data-open-cookie-settings]')
     ].filter(Boolean);
 
-    const elAnalytics = document.getElementById('cookieAnalytics');
-    const elFunctional = document.getElementById('cookieFunctional');
-    const elMarketing = document.getElementById('cookieMarketing');
-
     if (!banner || !acceptBtn) return;
-
-    const defaultConsent = () => ({
-        necessary: true,
-        analytics: false,
-        functional: false,
-        marketing: false,
-        decision: null,
-        timestamp: null,
-        version: 2
-    });
 
     function readConsent() {
         try {
             const raw = localStorage.getItem(STORAGE_KEY);
             if (!raw) {
-                // migrate old key if present
                 const legacy = localStorage.getItem('davidos_cookie_consent_v1');
                 if (!legacy) return null;
                 const old = JSON.parse(legacy);
                 if (!old) return null;
+                const accepted = !!(old.analytics || old.decision === 'accepted');
                 return {
                     necessary: true,
-                    analytics: !!(old.analytics || old.decision === 'accepted'),
-                    functional: !!(old.analytics || old.decision === 'accepted'),
+                    analytics: accepted,
+                    functional: accepted,
                     marketing: false,
                     decision: old.decision || null,
                     timestamp: old.timestamp || null,
@@ -65,9 +51,12 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
             }
             const data = JSON.parse(raw);
             return {
-                ...defaultConsent(),
-                ...data,
                 necessary: true,
+                analytics: !!data.analytics,
+                functional: !!data.functional,
+                marketing: !!data.marketing,
+                decision: data.decision || null,
+                timestamp: data.timestamp || null,
                 version: 2
             };
         } catch (e) {
@@ -75,17 +64,20 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
         }
     }
 
-    function saveConsent(partial) {
+    function saveConsent(accepted) {
         const payload = {
-            ...defaultConsent(),
-            ...partial,
             necessary: true,
+            // "Prijať" = all useful categories on; "Len nevyhnutné" = all off
+            analytics: !!accepted,
+            functional: !!accepted,
+            marketing: false,
+            decision: accepted ? 'accepted' : 'rejected',
             timestamp: new Date().toISOString(),
             version: 2
         };
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-            localStorage.setItem('cookiesAccepted', payload.analytics || payload.functional || payload.marketing ? 'true' : 'false');
+            localStorage.setItem('cookiesAccepted', accepted ? 'true' : 'false');
         } catch (e) {
             console.warn('Cookie preference could not be saved to localStorage.', e);
         }
@@ -100,42 +92,26 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
     }
 
     function showBanner() {
-        syncUIFromConsent(readConsent() || defaultConsent());
         banner.removeAttribute('hidden');
         banner.setAttribute('aria-hidden', 'false');
         document.body.classList.add('cookie-open');
-        setTimeout(() => banner.classList.add('visible'), 40);
-    }
-
-    function syncUIFromConsent(consent) {
-        if (elAnalytics) elAnalytics.checked = !!consent.analytics;
-        if (elFunctional) elFunctional.checked = !!consent.functional;
-        if (elMarketing) elMarketing.checked = !!consent.marketing;
-    }
-
-    function getUISelection(decision) {
-        return {
-            necessary: true,
-            analytics: !!(elAnalytics && elAnalytics.checked),
-            functional: !!(elFunctional && elFunctional.checked),
-            marketing: !!(elMarketing && elMarketing.checked),
-            decision: decision || 'custom'
-        };
+        // keep banner fully in viewport (no page scroll needed)
+        setTimeout(() => banner.classList.add('visible'), 30);
+        try { banner.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {}
     }
 
     function loadGoogleAnalytics() {
         if (window.__gaLoaded) return;
         const gaId = window.__GA_ID || 'G-TYVZKNP1XL';
-
         window.dataLayer = window.dataLayer || [];
-        window.gtag = window.gtag || function gtag(){ try { window.dataLayer.push(arguments); } catch (e) {} }; try { globalThis.gtag = window.gtag; } catch (e) {}
+        window.gtag = window.gtag || function gtag(){ try { window.dataLayer.push(arguments); } catch (e) {} };
+        try { globalThis.gtag = window.gtag; } catch (e) {}
         window.gtag('consent', 'update', {
             ad_storage: 'denied',
             ad_user_data: 'denied',
             ad_personalization: 'denied',
             analytics_storage: 'granted'
         });
-
         const s = document.createElement('script');
         s.async = true;
         s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(gaId);
@@ -148,7 +124,6 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
     }
 
     function enableFunctionalEmbeds() {
-        // Reveal/activate third-party embeds that require functional consent
         document.querySelectorAll('iframe[data-consent="functional"]').forEach((frame) => {
             const src = frame.getAttribute('data-src');
             if (src && (!frame.getAttribute('src') || frame.getAttribute('src') === 'about:blank')) {
@@ -177,9 +152,9 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
 
     function applyConsent(consent) {
         if (!consent) return;
-
         window.dataLayer = window.dataLayer || [];
-        window.gtag = window.gtag || function gtag(){ try { window.dataLayer.push(arguments); } catch (e) {} }; try { globalThis.gtag = window.gtag; } catch (e) {}
+        window.gtag = window.gtag || function gtag(){ try { window.dataLayer.push(arguments); } catch (e) {} };
+        try { globalThis.gtag = window.gtag; } catch (e) {}
 
         window.gtag('consent', 'update', {
             analytics_storage: consent.analytics ? 'granted' : 'denied',
@@ -189,24 +164,18 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
         });
 
         if (consent.analytics) loadGoogleAnalytics();
-
         if (consent.functional) enableFunctionalEmbeds();
         else disableFunctionalEmbeds();
 
-        // Marketing hooks (Meta Pixel / Ads) can be added later when IDs exist
-        if (consent.marketing) {
-            document.body.classList.add('consent-marketing');
-        } else {
-            document.body.classList.remove('consent-marketing');
-        }
-
         document.body.classList.toggle('consent-analytics', !!consent.analytics);
+        document.body.classList.toggle('consent-marketing', !!consent.marketing);
         window.dispatchEvent(new CustomEvent('cookie-consent-updated', { detail: consent }));
     }
 
-    // Default deny until decision
+    // default deny
     window.dataLayer = window.dataLayer || [];
-    window.gtag = window.gtag || function gtag(){ try { window.dataLayer.push(arguments); } catch (e) {} }; try { globalThis.gtag = window.gtag; } catch (e) {}
+    window.gtag = window.gtag || function gtag(){ try { window.dataLayer.push(arguments); } catch (e) {} };
+    try { globalThis.gtag = window.gtag; } catch (e) {}
     window.gtag('consent', 'default', {
         ad_storage: 'denied',
         ad_user_data: 'denied',
@@ -214,53 +183,25 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
         analytics_storage: 'denied',
         wait_for_update: 500
     });
-
-    // Start with functional embeds locked if marked
     disableFunctionalEmbeds();
 
     const existing = readConsent();
     if (existing && existing.decision) {
         hideBanner();
-        syncUIFromConsent(existing);
         applyConsent(existing);
     } else {
-        setTimeout(showBanner, 700);
+        setTimeout(showBanner, 500);
     }
 
     acceptBtn.addEventListener('click', () => {
-        if (elAnalytics) elAnalytics.checked = true;
-        if (elFunctional) elFunctional.checked = true;
-        if (elMarketing) elMarketing.checked = true;
-        const consent = saveConsent({
-            analytics: true,
-            functional: true,
-            marketing: true,
-            decision: 'accepted'
-        });
+        const consent = saveConsent(true);
         hideBanner();
         applyConsent(consent);
     });
 
     if (rejectBtn) {
         rejectBtn.addEventListener('click', () => {
-            if (elAnalytics) elAnalytics.checked = false;
-            if (elFunctional) elFunctional.checked = false;
-            if (elMarketing) elMarketing.checked = false;
-            const consent = saveConsent({
-                analytics: false,
-                functional: false,
-                marketing: false,
-                decision: 'rejected'
-            });
-            hideBanner();
-            applyConsent(consent);
-        });
-    }
-
-    if (saveBtn) {
-        saveBtn.addEventListener('click', () => {
-            const selection = getUISelection('custom');
-            const consent = saveConsent(selection);
+            const consent = saveConsent(false);
             hideBanner();
             applyConsent(consent);
         });
