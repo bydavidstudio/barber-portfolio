@@ -534,7 +534,7 @@ a {
 .hero-bg {
     position: absolute;
     inset: -15%;
-    background: url('images/uvodnyobrazok.png') center/cover no-repeat;
+    background: url('images/uvodnyobrazok.webp') center/cover no-repeat;
     z-index: 0;
     will-change: transform;
     transform: translate3d(0, 0, 0) scale(1.1);
@@ -9103,7 +9103,7 @@ footer,
     width: 100% !important;
     height: 100% !important;
     z-index: 0 !important;
-    background-image: url('images/uvodnyobrazok.png') !important;
+    background-image: url('images/uvodnyobrazok.webp') !important;
     background-repeat: no-repeat !important;
     background-size: cover !important;
     /* Desktop: show more of the upper/mid subject under the navbar */
